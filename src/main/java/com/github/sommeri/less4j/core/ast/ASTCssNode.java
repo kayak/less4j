@@ -1,6 +1,7 @@
 package com.github.sommeri.less4j.core.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.github.sommeri.less4j.LessSource;
@@ -94,6 +95,9 @@ public abstract class ASTCssNode implements PubliclyCloneable {
 
   @NotAstProperty
   public List<Comment> getTrailingComments() {
+    if (trailingComments == null) {
+        return Collections.emptyList();
+    }
     return trailingComments;
   }
 
@@ -102,15 +106,26 @@ public abstract class ASTCssNode implements PubliclyCloneable {
   }
 
   public void addTrailingComments(List<Comment> comments) {
-    this.trailingComments.addAll(comments);
+      if (trailingComments == null) {
+        this.trailingComments = new ArrayList<Comment>(comments);
+    } else {
+        this.trailingComments.addAll(comments);
+    }
   }
 
   public void addTrailingComment(Comment comment) {
+    if (trailingComments == null) {
+        this.trailingComments = new ArrayList<Comment>();
+    }
     this.trailingComments.add(comment);
   }
 
   @NotAstProperty
   public List<Comment> getOpeningComments() {
+    if (this.openingComments == null) {
+       return Collections.emptyList();
+    }
+
     return openingComments;
   }
 
@@ -119,11 +134,18 @@ public abstract class ASTCssNode implements PubliclyCloneable {
   }
 
   public void addOpeningComments(List<Comment> openingComments) {
-    this.openingComments.addAll(openingComments);
+    if (this.openingComments == null) {
+        this.openingComments = new ArrayList<Comment>(openingComments);
+    } else {
+        this.openingComments.addAll(openingComments);
+    }
   }
 
   @NotAstProperty
   public List<Comment> getOrphanComments() {
+    if (orphanComments == null) {
+        return Collections.emptyList();
+    }
     return orphanComments;
   }
 
@@ -149,13 +171,27 @@ public abstract class ASTCssNode implements PubliclyCloneable {
     return getUnderlyingStructure() == null ? -1 : getUnderlyingStructure().getCharPositionInLine() + 1;
   }
 
-  @Override
+
+@Override
   public ASTCssNode clone() {
     try {
       ASTCssNode clone = (ASTCssNode) super.clone();
-      clone.setOpeningComments(new ArrayList<Comment>(getOpeningComments()));
-      clone.setOrphanComments(new ArrayList<Comment>(getOrphanComments()));
-      clone.setTrailingComments(new ArrayList<Comment>(getTrailingComments()));
+      if (this.openingComments != null && !this.openingComments.isEmpty()) {
+          clone.setOpeningComments(new ArrayList<Comment>(getOpeningComments()));
+      } else {
+          clone.setOpeningComments(null);
+      }
+      if (this.orphanComments != null && !this.orphanComments.isEmpty()) {
+          clone.setOrphanComments(new ArrayList<Comment>(getOrphanComments()));
+      } else {
+          clone.setOrphanComments(null);
+      }
+      if (this.trailingComments != null && !this.trailingComments.isEmpty()) {
+          clone.setTrailingComments(new ArrayList<Comment>(getTrailingComments()));
+      } else {
+          clone.setTrailingComments(null);
+      }
+
       clone.setParent(null);
       return clone;
     } catch (CloneNotSupportedException e) {
