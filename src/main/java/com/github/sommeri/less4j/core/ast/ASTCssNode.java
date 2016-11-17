@@ -19,9 +19,9 @@ public abstract class ASTCssNode implements PubliclyCloneable {
   // to be identifying,
   // cycle detector must be modified. !
   private HiddenTokenAwareTree underlyingStructure;
-  private List<Comment> openingComments = new ArrayList<Comment>();
-  private List<Comment> orphanComments = new ArrayList<Comment>();
-  private List<Comment> trailingComments = new ArrayList<Comment>();
+  private List<Comment> openingComments = null;
+  private List<Comment> orphanComments = null;
+  private List<Comment> trailingComments = null;
 
   public ASTCssNode(HiddenTokenAwareTree underlyingStructure) {
     this.underlyingStructure = underlyingStructure;
@@ -93,6 +93,7 @@ public abstract class ASTCssNode implements PubliclyCloneable {
     this.underlyingStructure = underlyingStructure;
   }
 
+
   @NotAstProperty
   public List<Comment> getTrailingComments() {
     if (trailingComments == null) {
@@ -115,7 +116,7 @@ public abstract class ASTCssNode implements PubliclyCloneable {
 
   public void addTrailingComment(Comment comment) {
     if (trailingComments == null) {
-        this.trailingComments = new ArrayList<Comment>();
+        this.trailingComments = new ArrayList<Comment>(1);
     }
     this.trailingComments.add(comment);
   }
@@ -140,6 +141,7 @@ public abstract class ASTCssNode implements PubliclyCloneable {
         this.openingComments.addAll(openingComments);
     }
   }
+
 
   @NotAstProperty
   public List<Comment> getOrphanComments() {
@@ -177,21 +179,20 @@ public abstract class ASTCssNode implements PubliclyCloneable {
     try {
       ASTCssNode clone = (ASTCssNode) super.clone();
       if (this.openingComments != null && !this.openingComments.isEmpty()) {
-          clone.setOpeningComments(new ArrayList<Comment>(getOpeningComments()));
+          clone.setOpeningComments(new ArrayList<Comment>(openingComments));
       } else {
           clone.setOpeningComments(null);
       }
       if (this.orphanComments != null && !this.orphanComments.isEmpty()) {
-          clone.setOrphanComments(new ArrayList<Comment>(getOrphanComments()));
+          clone.setOrphanComments(new ArrayList<Comment>(orphanComments));
       } else {
           clone.setOrphanComments(null);
       }
       if (this.trailingComments != null && !this.trailingComments.isEmpty()) {
-          clone.setTrailingComments(new ArrayList<Comment>(getTrailingComments()));
+          clone.setTrailingComments(new ArrayList<Comment>(trailingComments));
       } else {
           clone.setTrailingComments(null);
       }
-
       clone.setParent(null);
       return clone;
     } catch (CloneNotSupportedException e) {

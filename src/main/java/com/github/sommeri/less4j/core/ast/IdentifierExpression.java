@@ -16,7 +16,7 @@ public class IdentifierExpression extends Expression {
 
   public IdentifierExpression(HiddenTokenAwareTree underlyingStructure, String value) {
     super(underlyingStructure);
-    this.value = value;
+    this.value = value != null ? value.intern() : value;
   }
 
   public String getValue() {
@@ -24,7 +24,7 @@ public class IdentifierExpression extends Expression {
   }
 
   public void setValue(String value) {
-    this.value = value;
+    this.value = value != null ? value.intern() : value;
   }
 
   @Override

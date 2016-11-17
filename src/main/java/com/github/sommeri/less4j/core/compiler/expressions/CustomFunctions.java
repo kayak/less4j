@@ -35,10 +35,10 @@ public class CustomFunctions implements FunctionsPackage {
   public Expression evaluate(FunctionExpression input, List<Expression> parameters, Expression evaluatedParameter) {
     for (LessFunction function : functions) {
       if (function.canEvaluate(input, parameters)) {
-        FunctionExpression inputClone = input.clone();
-        List<Expression> parametersClone = ArraysUtils.deeplyClonedList(parameters);
-        Expression evaluatedParameterClone = evaluatedParameter.clone();
-        return fixResult(function.evaluate(inputClone, parametersClone, evaluatedParameterClone, new SafeLessProblem(problemsHandler, inputClone)), input);
+        //FunctionExpression inputClone = input.clone();
+        //List<Expression> parametersClone = ArraysUtils.deeplyClonedList(parameters);
+        //Expression evaluatedParameterClone = evaluatedParameter.clone();
+        return fixResult(function.evaluate(input, parameters, evaluatedParameter, new SafeLessProblem(problemsHandler, input)), input);
       }
     }
     return new FaultyExpression(input);

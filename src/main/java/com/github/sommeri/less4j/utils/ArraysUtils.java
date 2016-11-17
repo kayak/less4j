@@ -142,7 +142,7 @@ public class ArraysUtils {
   }
 
   public static <T> List<T> asNonNullList(T... a) {
-    List<T> result = new ArrayList<T>();
+    List<T> result = new ArrayList<T>(a.length);
     for (T t : a) {
       if (t != null)
         result.add(t);
@@ -160,7 +160,7 @@ public class ArraysUtils {
 
   @SuppressWarnings("unchecked")
   public static <T extends PubliclyCloneable> List<T> deeplyClonedList(List<T> list) {
-    List<T> result = new ArrayList<T>();
+    List<T> result = new ArrayList<T>(list.size());
     for (T t : list) {
       result.add((T)t.clone());
     }
@@ -241,7 +241,7 @@ public class ArraysUtils {
     return true;
   }
 
-  public static <Q> void replace(List<Q> inList, Q oldElement, LinkedList<Q> newElements) {
+  public static <Q> void replace(List<Q> inList, Q oldElement, List<Q> newElements) {
     int level = inList.indexOf(oldElement);
     inList.remove(level);
     inList.addAll(level, newElements);

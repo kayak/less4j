@@ -54,8 +54,13 @@ public class BasicScope extends ComposedDumbScope implements IScope {
   }
 
   public boolean seesLocalDataOf(IScope otherScope) {
-    if (getLocalScope().hasTheSameLocalData(otherScope.getLocalScope()))
+    if (otherScope == this) {
       return true;
+    }
+      
+    if (getLocalScope().hasTheSameLocalData(otherScope.getLocalScope())) {
+      return true;
+    }
 
     if (!hasParent())
       return false;

@@ -26,8 +26,8 @@ public class LocalScope implements ILocalScope {
   private final ASTCssNode owner;
   private boolean presentInAst = true;
 
-  private LocalScopeData localData = new LocalScopeData();
-  private Stack<LocalScopeData> localDataSnapshots = new Stack<LocalScopeData>();
+  private LocalScopeData localData;
+  private Stack<LocalScopeData> localDataSnapshots;
   private boolean cloneOnWrite = false;
   private boolean cloned;
 
@@ -37,15 +37,20 @@ public class LocalScope implements ILocalScope {
     this.owner = owner;
     this.names = names;
     this.type = type;
+    localData = new LocalScopeData();
   }
 
   public LocalScope(ASTCssNode owner, LocalScopeData initialLocalData, List<String> names, String type) {
-    this(owner, names, type);
-    localData = initialLocalData;
+    this.owner = owner;
+    this.names = names;
+    this.type = type;
+    this.localData = initialLocalData;
   }
 
   public LocalScope(ASTCssNode owner, LocalScopeData initialLocalData, List<String> names, String type, boolean cloneOnWrite, boolean cloned) {
-    this(owner, names, type);
+    this.owner = owner;
+    this.names = names;
+    this.type = type;
     localData = initialLocalData;
     this.cloneOnWrite = cloneOnWrite;
     this.cloned = cloned;
@@ -160,7 +165,7 @@ public class LocalScope implements ILocalScope {
    * instead.
    */
   public void createCurrentDataSnapshot() {
-    localDataSnapshots.push(localData);
+    getLocalDataSnapshots().push(localData);
     cloneOnWrite = true;
     cloned = false;
   }
@@ -170,7 +175,7 @@ public class LocalScope implements ILocalScope {
    * instead.
    */
   public void createOriginalDataSnapshot() {
-    localDataSnapshots.push(localData);
+    getLocalDataSnapshots().push(localData);
     localData = localDataSnapshots.firstElement();
     cloneOnWrite = true;
     cloned = false;
@@ -181,7 +186,7 @@ public class LocalScope implements ILocalScope {
    * instead.
    */
   public void discardLastDataSnapshot() {
-    localData = localDataSnapshots.pop();
+    localData = getLocalDataSnapshots().pop();
     cloneOnWrite = false;
     cloned = false;
   }
@@ -222,6 +227,13 @@ public class LocalScope implements ILocalScope {
   @Override
   public String toString() {
     return localData.toString();
+  }
+  
+  private Stack<LocalScopeData> getLocalDataSnapshots() {
+      if (localDataSnapshots == null) {
+          this.localDataSnapshots = new Stack<LocalScopeData>();
+      }
+      return localDataSnapshots;
   }
 
 }

@@ -47,7 +47,7 @@ public class InitialScopeExtractor {
 
     fillScopeNames(node);
 
-    List<? extends ASTCssNode> childs = new ArrayList<ASTCssNode>(node.getChilds());
+    List<? extends ASTCssNode> childs =node.getChilds();
     for (ASTCssNode kid : childs) {
       buildScope(kid);
 

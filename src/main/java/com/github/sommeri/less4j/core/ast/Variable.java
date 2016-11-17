@@ -22,7 +22,8 @@ public class Variable extends Expression {
 
   public Variable(HiddenTokenAwareTree underlyingStructure, String name, boolean hasInterpolatedForm, boolean collector) {
     super(underlyingStructure);
-    this.name = name;
+    this.name = name.intern();
+    this.name.hashCode();
     this.hasInterpolatedForm = hasInterpolatedForm;
     this.collector = collector;
   }
@@ -32,7 +33,8 @@ public class Variable extends Expression {
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name = name.intern();
+    this.name.hashCode();
   }
 
   public boolean hasInterpolatedForm() {

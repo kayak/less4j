@@ -215,7 +215,7 @@ public class ExpressionEvaluator {
     case UNICODE_RANGE_EXPRESSION:
     case EMPTY_EXPRESSION:
     case ANONYMOUS:
-      return input.clone();
+      return input;//.clone();
 
     default:
       throw new BugHappened("Unknown expression type " + input.getType(), input);

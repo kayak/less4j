@@ -33,8 +33,11 @@ public class CallerCalleeScopeJoiner {
     boolean isLocallyDefined = true;
     
     IScope checkScope = callerScope;
-    while (isLocallyDefined && checkScope!=null) {
+    while (checkScope!=null) {
       isLocallyDefined = bodyScope.seesLocalDataOf(checkScope);
+      if (!isLocallyDefined) {
+          break;
+      }
       checkScope = checkScope.getParent();
     }
     return isLocallyDefined;

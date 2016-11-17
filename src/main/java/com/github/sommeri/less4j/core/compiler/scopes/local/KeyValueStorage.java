@@ -1,10 +1,12 @@
 package com.github.sommeri.less4j.core.compiler.scopes.local;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -14,8 +16,8 @@ import com.github.sommeri.less4j.utils.PubliclyCloneable;
 
 public class KeyValueStorage<M, T> implements Cloneable {
 
-  private LinkedList<Level<M, T>> levels = new LinkedList<Level<M, T>>();
-  private LinkedList<ValuePlaceholder<M, T>> placeholders = new LinkedList<ValuePlaceholder<M, T>>();
+  private List<Level<M, T>> levels = new ArrayList<Level<M, T>>();
+  private List<ValuePlaceholder<M, T>> placeholders = new ArrayList<ValuePlaceholder<M, T>>();
 
   public int size() {
     return levels.size();
@@ -40,33 +42,28 @@ public class KeyValueStorage<M, T> implements Cloneable {
   }
 
   public T getValue(M key) {
-    Iterator<Level<M, T>> di = levels.descendingIterator();
-    while (di.hasNext()) {
-      Level<M, T> level = di.next();
-      if (level.contains(key))
-        return level.getValue(key);
+    for (int i = levels.size() - 1; i >= 0; i--) {
+        Level<M, T> level = levels.get(i);
+        if (level.contains(key))
+            return level.getValue(key);
     }
-
     return null;
   }
 
   public void remove(M key) {
-    Iterator<Level<M, T>> di = levels.descendingIterator();
-    while (di.hasNext()) {
-      Level<M, T> level = di.next();
-      if (level.contains(key))
-        level.remove(key);
-    }
+      for (int i = levels.size() - 1; i >= 0; i--) {
+          Level<M, T> level = levels.get(i);
+          if (level.contains(key))
+              level.remove(key);
+      }
   }
 
   public Set<Entry<M, T>> getAllEntries() {
     Set<Entry<M, T>> result = new HashSet<Entry<M,T>>();
-    Iterator<Level<M, T>> iterator = levels.descendingIterator();
-    while (iterator.hasNext()) {
-      Level<M, T> level = iterator.next();
-      result.addAll(level.getAllEntries());
+    for (int i = levels.size() - 1; i >= 0; i--) {
+        Level<M, T> level = levels.get(i);
+        result.addAll(level.getAllEntries());
     }
-
     return result;
   }
 
@@ -81,7 +78,7 @@ public class KeyValueStorage<M, T> implements Cloneable {
   }
 
   public void addDataToFirstPlaceholder(KeyValueStorage<M, T> otherStorage) { // used to be called addToPlaceholder
-    ValuePlaceholder<M, T> placeholder = placeholders.peekFirst();
+    ValuePlaceholder<M, T> placeholder = placeholders.size() > 0 ? placeholders.get(0) : null;
     addDataOnly(placeholder, otherStorage);
   }
 
@@ -92,12 +89,14 @@ public class KeyValueStorage<M, T> implements Cloneable {
   }
 
   public void addToFirstPlaceholder(M key, T value) {
-    ValuePlaceholder<M, T> placeholder = placeholders.peekFirst();
+    ValuePlaceholder<M, T> placeholder = placeholders.size() > 0 ? placeholders.get(0) : null;
     placeholder.level.add(key, value);
   }
 
   public void closeFirstPlaceholder() { // used to be called closePlaceholder
-    placeholders.pop();
+      if (!placeholders.isEmpty()) {
+          placeholders.remove(0);
+      }
   }
 
   //REPLACE whatever was stored in placeholder
@@ -112,13 +111,13 @@ public class KeyValueStorage<M, T> implements Cloneable {
       addLevel();
     }
 
-    Level<M, T> lastLevel = levels.peekLast();
+    Level<M, T> lastLevel = levels.get(levels.size() - 1);
     return lastLevel;
   }
 
   private Level<M, T> addLevel() {
     levels.add(new Level<M, T>());
-    return levels.peekLast();
+    return levels.get(levels.size() - 1);
   }
 
   @Override
@@ -126,7 +125,7 @@ public class KeyValueStorage<M, T> implements Cloneable {
     try {
       @SuppressWarnings("unchecked")
       KeyValueStorage<M, T> clone = (KeyValueStorage<M, T>) super.clone();
-      clone.levels = ArraysUtils.deeplyClonedLinkedList(levels);
+      clone.levels = ArraysUtils.deeplyClonedList(levels);
       clone.placeholders = new LinkedList<ValuePlaceholder<M, T>>();
       for (ValuePlaceholder<M, T> placeholder : placeholders) {
         int index = levels.indexOf(placeholder.level);
@@ -146,40 +145,53 @@ public class KeyValueStorage<M, T> implements Cloneable {
   
   private static class Level<M, T> implements PubliclyCloneable {
 
-    private Map<M, T> storage = new HashMap<M, T>();
-
-    public void add(M key, T thing) {
-      storage.put(key, thing);
+    private HashMap<M, T> storage;
+    
+    private Map<M, T> getStorage() {
+        if (storage == null) {
+            storage = new HashMap<M, T>();
+        }
+        return storage;
     }
 
+    public void add(M key, T thing) {
+      getStorage().put(key, thing);
+    }
+
+    @SuppressWarnings("unchecked")
     public Collection<Entry<M, T>> getAllEntries() {
-      return storage.entrySet();
+      return storage != null ? storage.entrySet() : Collections.EMPTY_LIST;
     }
 
     public T getValue(M key) {
-      return storage.get(key);
+      return storage != null ? storage.get(key) : null;
     }
 
     public void remove(M key) {
-      storage.remove(key);
-    }
-
-    public boolean contains(M key) {
-      return storage.containsKey(key);
-    }
-
-    public void addAll(Level<M, T> otherLevel) {
-      for (Entry<M, T> entry : otherLevel.storage.entrySet()) {
-        add(entry.getKey(), entry.getValue());
+      if (storage != null) {
+          storage.remove(key);
       }
     }
 
+    public boolean contains(M key) {
+      return storage != null ? storage.containsKey(key) : false;
+    }
+
+    public void addAll(Level<M, T> otherLevel) {
+      Map<M, T> s = getStorage();
+      for (Entry<M, T> entry : otherLevel.storage.entrySet()) {
+        s.put(entry.getKey(), entry.getValue());
+      }
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public Level<M, T> clone() {
       try {
-        @SuppressWarnings("unchecked")
         Level<M, T> clone = (Level<M, T>) super.clone();
-        clone.storage = new HashMap<M, T>(storage);
+        if (storage != null) {
+            clone.storage = (HashMap<M,T>)storage.clone();
+        }
         return clone;
       } catch (CloneNotSupportedException e) {
         throw new IllegalStateException("Impossible state.");
@@ -189,7 +201,7 @@ public class KeyValueStorage<M, T> implements Cloneable {
     
     @Override
     public String toString() {
-      return "Level: " + storage.toString();
+      return "Level: " + storage != null ? storage.toString() : "{}";
     }
   }
 

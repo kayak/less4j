@@ -174,7 +174,10 @@ public class ThreadUnsafeLessCompiler implements LessCompiler {
     CssPrinter builder = new CssPrinter(lessSource, cssDestination, extractSources(externalVariables), additionalSourceFiles, options);
     builder.append(cssStyleSheet);
     StringBuilder css = builder.toCss();
-    String sourceMap = builder.toSourceMap();
+    String sourceMap = null;
+    if (options.getSourceMapConfiguration().isEnabled()) {
+      sourceMap = builder.toSourceMap();
+    }
 
     handleSourceMapLink(cssStyleSheet, css, options, lessSource, sourceMap);
 
@@ -208,9 +211,9 @@ public class ThreadUnsafeLessCompiler implements LessCompiler {
 
     addNewLine(css);
 
-    String commentText;
+    String commentText = null;
     String encodingCharset = sourceMapConfiguration.getEncodingCharset();
-    if (sourceMapConfiguration.isInline()) {
+    if (sourceMap != null && sourceMapConfiguration.isInline()) {
       String encodedSourceMap = PrintUtils.base64Encode(sourceMap, encodingCharset, problemsHandler, cssAst);
       commentText = "/*# sourceMappingURL=data:application/json;base64," + encodedSourceMap + " */";
     } else {

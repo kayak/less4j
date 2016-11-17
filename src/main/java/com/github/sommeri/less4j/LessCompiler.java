@@ -150,6 +150,7 @@ public interface LessCompiler {
   }
 
   public static class SourceMapConfiguration {
+    private boolean enabled = true;
     private boolean linkSourceMap = true;
     private boolean inline = false;
     private String encodingCharset = "UTF-8";
@@ -168,6 +169,14 @@ public interface LessCompiler {
     public SourceMapConfiguration setLinkSourceMap(boolean linkSourceMap) {
       this.linkSourceMap = linkSourceMap;
       return this;
+    }
+    
+    public boolean isEnabled() {
+      return enabled;
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public boolean isInline() {
